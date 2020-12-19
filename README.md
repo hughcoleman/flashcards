@@ -1,7 +1,7 @@
 <h3 align="center">flashcards</h3>
 
 <p align="center">
-  <b>Simple flashcards for the command line.</b>
+  <b>A flashcard quiz for the command line.</b>
 </p>
 
 ###### Usage
