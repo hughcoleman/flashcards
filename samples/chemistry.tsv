@@ -1,0 +1,24 @@
+!elements: What is the standard abbreviation for %1?
+oxygen	o
+boron	b
+lithium	li
+hydrogen	h
+nitrogen	n
+carbon	c
+helium	he
+neon	ne
+fluorine	f
+beryllium	be
+
+!periodic table: What is the atomic number of %1?
+aluminum	13
+calcium	20
+carbon	6
+chlorine	17
+fluorine	9
+helium	2
+
+!acids
+What is the approximate pH of a lemon?	2
+What is the approximate pH of coffee?	5
+What is the approximate pH of baking soda?	9
