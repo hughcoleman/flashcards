@@ -7,5 +7,5 @@
 ###### Usage
 
 ```bash
-flashcards questions.tsv
+$ flashcards [--number NUMBER=inf] [--category CATEGORY=None] [--linear=False] <questions.tsv file>
 ```
