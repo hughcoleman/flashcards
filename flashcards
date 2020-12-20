@@ -9,23 +9,108 @@
 
 import argparse
 import math
+import random
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-n", "--number", default=math.inf, type=int,
             help="number of questions to ask")
-    parser.add_argument("-r", "--repetitions", default=math.inf, type=int,
-            help="maximum number of times each question can be asked")
     parser.add_argument("-l", "--linear", action="store_true",
             help="do not shuffle questions")
+    parser.add_argument("-c", "--category", default=None, type=str,
+            help="filter only questions of a certain category")
+    # parser.add_argument("-j", "--jeopardy", action="store_true",
+    #         help="ask questions Jeopardy! style (show answer)")
 
     parser.add_argument("questions", type=argparse.FileType("r"),
             help="tsv of questions to ask")
 
     args = parser.parse_args()
 
-    i = 0
-    while i < args.number:
-        print("Question #{}: {}".format(i + 1, ""))
-        i = i + 1
+    questions = []
+    category, template = "", None
+    for ln in args.questions.read().split("\n"):
+        if ln.startswith("!"):
+            if ": " in ln:
+                category = ln.split(": ")[0][1:]
+                template = ln.split(": ")[1]
+            else:
+                category = ln[1:]
+                template = None
+        elif ln:
+            fields = [field for field in ln.strip().split("\t") if field]
+            
+            if len(fields) != 2:
+                print("warning: skipping line \"{}\"".format(ln))
+                continue
+
+            question, answer = fields 
+            if template:
+                question = template.replace("%1", fields[0])
+            
+            questions.append((category, question, answer))
+
+    n = 0
+    idx = -1
+    while n < args.number:
+        # first, pick a question to ask
+        if (args.linear):
+            idx = (idx + 1) % len(questions)
+        else:
+            idx = random.randrange(0, len(questions))
+
+        category, question, answer = questions[idx]
+        if args.category:
+            while args.category != category:
+                # if a category has been selected, but the question is not of
+                # the same category, pick a new question
+                if (args.linear):
+                    idx = (idx + 1) % len(questions)
+                else:
+                    idx = random.randrange(0, len(questions))
+
+                category, question, answer = questions[idx]
+
+        # print the question prompt
+        print("\u001b[44;1m Question #{}. \u001b[0m ".format(n + 1), end="")
+        indent = 13 + int(math.log10(n + 1))
+
+        # print the question
+        question = question.split(" ")
+        l1 = True
+        while len(question) > 0:
+            # find the greatest number of words in the question that can be
+            # printed without exceeding 80 characters.
+            buffer = []
+            while len(" ".join(question)) >= 80 - indent - 1:
+                buffer.insert(0, question.pop())
+            
+            # if it's the first line, no padding needed. otherwise, print an
+            # indent to ensure alignment
+            if l1:
+                print(" ".join(question))
+                l1 = False
+            else:
+                print(" "*(indent + 2) + " ".join(question))
+            
+            question = buffer
+
+        print("")
+
+        # accept a response from the user
+        response = input(" "*indent + "> ").lower()
+
+        # print correct answer
+        print(" "*indent + "< " + answer.upper())
+
+        n = n + 1
+        print("")
+
+        # if special command, quit!
+        if (response in ["!", "!q", "!quit"]):
+            break
+    
+    print("Game over! {} questions answered.".format(
+        n
+    ))
