@@ -11,45 +11,6 @@ import argparse
 import math
 import random
 
-class ANSI:
-    RESET = "\u001b[0m"
-    BOLD = "\u001b[37;1m"
-
-class Flashcard:
-    """ """    
-
-    def render(self):
-        # separate the question across multiple lines, as needed
-        lns = []
-        for word in self.question.split():
-            if len(lns) > 0 and len(lns[-1]) + 1 + len(word) <= 39:
-                lns[-1] = lns[-1] + " " + word
-            else:
-                lns.append(word)
-
-        return "\n".join([
-            " ╭───────────────────────────────────────────────╮",
-            " │ "       + self.category.upper().rjust(45) + " │",
-            " │                                               │",
-            " │                                               │",
-            *[
-            " │    " + ANSI.BOLD + ln.center(39) + ANSI.RESET + "    │"
-                    for ln in lns
-            ], 
-            " │                                               │",
-            " │                                               │",
-            " │                                               │",
-            " ╰───────────────────────────────────────────────╯"
-        ])
-
-    def __init__(self, question, answers, category=None):
-        self.category = category
-        self.question = question
-        self.answers = answers
-
-# c = Flashcard("What is g, the gravitational constant, on Earth?", ["9.81m/s/s"], category="Physics")
-# print(c.render())
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
@@ -79,7 +40,7 @@ if __name__ == "__main__":
             fields = [field for field in ln.strip().split("\t") if field]
             
             if len(fields) != 2:
-                print("warning: skipping line \"{}\"".format(ln))
+                print("[!] warning: skipping line \"{}\"".format(ln))
                 continue
 
             question, answer = fields 
@@ -87,6 +48,8 @@ if __name__ == "__main__":
                 question = template.replace("%1", fields[0])
             
             questions.append((category, question, answer))
+
+    print("")
 
     n = 0
     idx = -1
@@ -110,8 +73,8 @@ if __name__ == "__main__":
                 category, question, answer = questions[idx]
 
         # print the question prompt
-        print("\u001b[44;1m Question #{}. \u001b[0m ".format(n + 1), end="")
-        indent = 13 + int(math.log10(n + 1))
+        print(" \u001b[42;1m Question #{}. \u001b[0m ".format(n + 1), end="")
+        indent = 14 + int(math.log10(n + 1))
 
         # print the question
         question = question.split(" ")
